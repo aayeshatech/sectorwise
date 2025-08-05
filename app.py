@@ -1,7 +1,5 @@
-from flask import Flask, render_template, request
+import streamlit as st
 from datetime import datetime
-
-app = Flask(__name__)
 
 # Astrological data for 2025
 astro_data = [
@@ -118,47 +116,112 @@ def get_symbol_report(symbol):
                 return get_sector_report(sec)
         return None
 
-@app.route('/')
-def index():
-    sectors = sorted(set(event['sector'] for event in astro_data))
-    months = [datetime(2025, i, 1).strftime('%B') for i in range(1, 13)]
-    symbols = sorted(symbol_to_sector.keys())
-    return render_template('index.html', sectors=sectors, months=months, symbols=symbols)
+# Streamlit app
+st.set_page_config(
+    page_title="Astrological Sector Report Generator",
+    page_icon="🔮",
+    layout="wide"
+)
 
-@app.route('/report', methods=['POST'])
-def report():
-    report_type = request.form.get('report_type')
-    result_data = None
-    title = ""
+st.title("🔮 Astrological Sector Report Generator")
+st.markdown("Generate astrological reports by sector, month, or stock symbol")
+
+# Get unique sectors and months
+sectors = sorted(set(event['sector'] for event in astro_data))
+months = [datetime(2025, i, 1).strftime('%B') for i in range(1, 13)]
+symbols = sorted(symbol_to_sector.keys())
+
+# Create tabs for different report types
+tab1, tab2, tab3 = st.tabs(["By Sector", "By Month", "By Symbol"])
+
+with tab1:
+    st.header("Sector Report")
+    selected_sector = st.selectbox("Select a sector", sectors)
     
-    if report_type == 'sector':
-        sector = request.form.get('sector')
-        result_data = get_sector_report(sector)
-        title = f"Astrological Report for {sector} Sector"
-    elif report_type == 'month':
-        month = request.form.get('month')
-        result_data = get_month_report(month)
-        title = f"Astrological Report for {month} 2025"
-    elif report_type == 'symbol':
-        symbol = request.form.get('symbol')
-        result_data = get_symbol_report(symbol)
-        if result_data is not None:
-            sector_name = symbol_to_sector.get(symbol.upper(), "Unknown")
-            title = f"Astrological Report for {symbol} ({sector_name} Sector)"
+    if st.button("Generate Sector Report"):
+        report_data = get_sector_report(selected_sector)
+        if report_data:
+            st.subheader(f"Astrological Report for {selected_sector} Sector")
+            st.markdown(f"**Total events:** {len(report_data)}")
+            
+            # Format date for display
+            for event in report_data:
+                event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+            
+            # Display as dataframe
+            st.dataframe(
+                report_data,
+                column_config={
+                    "date": "Date",
+                    "sector": "Sector",
+                    "transit_aspect": "Transit/Aspect",
+                    "trend": "Trend",
+                    "strategy": "Strategy"
+                },
+                use_container_width=True
+            )
         else:
-            title = f"No data found for symbol: {symbol}"
-    
-    if result_data is None or len(result_data) == 0:
-        return render_template('no_results.html', title=title)
-    
-    # Format date for display
-    for event in result_data:
-        event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
-    
-    return render_template('report.html', 
-                          data=result_data,
-                          title=title,
-                          count=len(result_data))
+            st.warning(f"No data found for {selected_sector} sector")
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+with tab2:
+    st.header("Monthly Report")
+    selected_month = st.selectbox("Select a month", months)
+    
+    if st.button("Generate Monthly Report"):
+        report_data = get_month_report(selected_month)
+        if report_data:
+            st.subheader(f"Astrological Report for {selected_month} 2025")
+            st.markdown(f"**Total events:** {len(report_data)}")
+            
+            # Format date for display
+            for event in report_data:
+                event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+            
+            # Display as dataframe
+            st.dataframe(
+                report_data,
+                column_config={
+                    "date": "Date",
+                    "sector": "Sector",
+                    "transit_aspect": "Transit/Aspect",
+                    "trend": "Trend",
+                    "strategy": "Strategy"
+                },
+                use_container_width=True
+            )
+        else:
+            st.warning(f"No data found for {selected_month}")
+
+with tab3:
+    st.header("Symbol Report")
+    selected_symbol = st.selectbox("Select a symbol", symbols)
+    
+    if st.button("Generate Symbol Report"):
+        report_data = get_symbol_report(selected_symbol)
+        if report_data:
+            sector_name = symbol_to_sector.get(selected_symbol.upper(), "Unknown")
+            st.subheader(f"Astrological Report for {selected_symbol} ({sector_name} Sector)")
+            st.markdown(f"**Total events:** {len(report_data)}")
+            
+            # Format date for display
+            for event in report_data:
+                event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+            
+            # Display as dataframe
+            st.dataframe(
+                report_data,
+                column_config={
+                    "date": "Date",
+                    "sector": "Sector",
+                    "transit_aspect": "Transit/Aspect",
+                    "trend": "Trend",
+                    "strategy": "Strategy"
+                },
+                use_container_width=True
+            )
+        else:
+            st.warning(f"No data found for symbol {selected_symbol}")
+
+# Add footer
+st.markdown("---")
+st.markdown("© 2025 Astrological Sector Report Generator | Data is for informational purposes only")
