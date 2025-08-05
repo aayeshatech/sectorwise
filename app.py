@@ -1,5 +1,4 @@
 import streamlit as st
-import json
 from datetime import datetime
 
 # Set page config
@@ -143,7 +142,7 @@ def main():
         st.header("Sector Report")
         selected_sector = st.selectbox("Select a sector", [""] + sectors)
         
-        if st.button("Generate Sector Report"):
+        if st.button("Generate Sector Report", key="sector_btn"):
             if selected_sector:
                 report_data = get_sector_report(selected_sector)
                 if report_data:
@@ -175,7 +174,7 @@ def main():
         st.header("Monthly Report")
         selected_month = st.selectbox("Select a month", [""] + months)
         
-        if st.button("Generate Monthly Report"):
+        if st.button("Generate Monthly Report", key="month_btn"):
             if selected_month:
                 report_data = get_month_report(selected_month)
                 if report_data:
@@ -207,7 +206,7 @@ def main():
         st.header("Symbol Report")
         selected_symbol = st.selectbox("Select a symbol", [""] + symbols)
         
-        if st.button("Generate Symbol Report"):
+        if st.button("Generate Symbol Report", key="symbol_btn"):
             if selected_symbol:
                 report_data = get_symbol_report(selected_symbol)
                 if report_data:
