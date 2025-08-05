@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-import pandas as pd
 from datetime import datetime
 
 app = Flask(__name__)
@@ -92,20 +91,19 @@ symbol_to_sector = {
     "ETH": "BTC"
 }
 
-# Create DataFrame
-df = pd.DataFrame(astro_data)
-df['date'] = pd.to_datetime(df['date'])
-
 def get_sector_report(sector):
     """Generate report for a specific sector"""
-    sector_df = df[df['sector'] == sector].sort_values('date')
-    return sector_df
+    sector_data = [event for event in astro_data if event['sector'] == sector]
+    # Sort by date
+    sector_data.sort(key=lambda x: x['date'])
+    return sector_data
 
 def get_month_report(month):
     """Generate report for a specific month"""
     month_num = datetime.strptime(month, "%B").month
-    month_df = df[df['date'].dt.month == month_num].sort_values('date')
-    return month_df
+    month_data = [event for event in astro_data if datetime.strptime(event['date'], "%Y-%m-%d").month == month_num]
+    month_data.sort(key=lambda x: x['date'])
+    return month_data
 
 def get_symbol_report(symbol):
     """Generate report for a specific stock symbol"""
@@ -122,7 +120,7 @@ def get_symbol_report(symbol):
 
 @app.route('/')
 def index():
-    sectors = sorted(df['sector'].unique())
+    sectors = sorted(set(event['sector'] for event in astro_data))
     months = [datetime(2025, i, 1).strftime('%B') for i in range(1, 13)]
     symbols = sorted(symbol_to_sector.keys())
     return render_template('index.html', sectors=sectors, months=months, symbols=symbols)
@@ -130,37 +128,37 @@ def index():
 @app.route('/report', methods=['POST'])
 def report():
     report_type = request.form.get('report_type')
-    result_df = None
+    result_data = None
     title = ""
     
     if report_type == 'sector':
         sector = request.form.get('sector')
-        result_df = get_sector_report(sector)
+        result_data = get_sector_report(sector)
         title = f"Astrological Report for {sector} Sector"
     elif report_type == 'month':
         month = request.form.get('month')
-        result_df = get_month_report(month)
+        result_data = get_month_report(month)
         title = f"Astrological Report for {month} 2025"
     elif report_type == 'symbol':
         symbol = request.form.get('symbol')
-        result_df = get_symbol_report(symbol)
-        if result_df is not None:
+        result_data = get_symbol_report(symbol)
+        if result_data is not None:
             sector_name = symbol_to_sector.get(symbol.upper(), "Unknown")
             title = f"Astrological Report for {symbol} ({sector_name} Sector)"
         else:
             title = f"No data found for symbol: {symbol}"
     
-    if result_df is None or result_df.empty:
+    if result_data is None or len(result_data) == 0:
         return render_template('no_results.html', title=title)
     
     # Format date for display
-    result_df = result_df.copy()
-    result_df['date'] = result_df['date'].dt.strftime('%b %d, %Y')
+    for event in result_data:
+        event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
     
     return render_template('report.html', 
-                          tables=[result_df.to_html(classes='data', header=True, index=False)],
+                          data=result_data,
                           title=title,
-                          count=len(result_df))
+                          count=len(result_data))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
