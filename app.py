@@ -41,6 +41,15 @@ def get_all_sectors_report():
     """Generate report for all sectors"""
     return astro_data
 
+def format_report_data(report_data):
+    """Create a formatted copy of the report data for display"""
+    formatted_data = []
+    for event in report_data:
+        formatted_event = event.copy()
+        formatted_event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+        formatted_data.append(formatted_event)
+    return formatted_data
+
 # Main app
 def main():
     st.title("🔮 Astrological Sector Report Generator 2025")
@@ -66,12 +75,11 @@ def main():
                     st.markdown(f"**Total events:** {len(report_data)}")
                     
                     # Format date for display
-                    for event in report_data:
-                        event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+                    formatted_data = format_report_data(report_data)
                     
                     # Display as dataframe
                     st.dataframe(
-                        report_data,
+                        formatted_data,
                         column_config={
                             "date": "Date",
                             "sector": "Sector",
@@ -98,12 +106,11 @@ def main():
                     st.markdown(f"**Total events:** {len(report_data)}")
                     
                     # Format date for display
-                    for event in report_data:
-                        event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+                    formatted_data = format_report_data(report_data)
                     
                     # Display as dataframe
                     st.dataframe(
-                        report_data,
+                        formatted_data,
                         column_config={
                             "date": "Date",
                             "sector": "Sector",
@@ -131,12 +138,11 @@ def main():
                     st.markdown(f"**Total events:** {len(report_data)}")
                     
                     # Format date for display
-                    for event in report_data:
-                        event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+                    formatted_data = format_report_data(report_data)
                     
                     # Display as dataframe
                     st.dataframe(
-                        report_data,
+                        formatted_data,
                         column_config={
                             "date": "Date",
                             "sector": "Sector",
@@ -162,12 +168,11 @@ def main():
                 st.markdown(f"**Total events:** {len(report_data)}")
                 
                 # Format date for display
-                for event in report_data:
-                    event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+                formatted_data = format_report_data(report_data)
                 
                 # Display as dataframe
                 st.dataframe(
-                    report_data,
+                    formatted_data,
                     column_config={
                         "date": "Date",
                         "sector": "Sector",
