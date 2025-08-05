@@ -9,7 +9,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Astrological data for 2025
+# Astrological data for 2025 (extended through December)
 astro_data = [
     {"date": "2025-01-15", "sector": "Pharma", "transit_aspect": "Saturn Square Mercury", "trend": "Bearish", "strategy": "Short biotech stocks with late-stage trials"},
     {"date": "2025-02-05", "sector": "Pharma", "transit_aspect": "Venus Sextile Neptune", "trend": "Bullish", "strategy": "Long generic drug manufacturers (e.g., Lupin)"},
@@ -71,6 +71,36 @@ astro_data = [
     {"date": "2025-03-30", "sector": "BTC", "transit_aspect": "Jupiter Conjunct Uranus", "trend": "Bullish", "strategy": "Long BTC/ETH"},
     {"date": "2025-04-20", "sector": "BTC", "transit_aspect": "Saturn Square Mercury", "trend": "Bearish", "strategy": "Short crypto exchanges"},
     {"date": "2025-05-15", "sector": "BTC", "transit_aspect": "Uranus Trine Sun", "trend": "Bullish", "strategy": "Long DeFi tokens"},
+    
+    # Extended data for July - December 2025
+    {"date": "2025-07-10", "sector": "Pharma", "transit_aspect": "Sun Trine Jupiter", "trend": "Bullish", "strategy": "Long biotech stocks with breakthrough drugs"},
+    {"date": "2025-07-15", "sector": "Auto", "transit_aspect": "Venus Trine Mars", "trend": "Bullish", "strategy": "Long EV manufacturers with new models"},
+    {"date": "2025-07-20", "sector": "FMCG", "transit_aspect": "Moon Trine Jupiter", "trend": "Bullish", "strategy": "Long consumer goods companies with strong brands"},
+    {"date": "2025-07-25", "sector": "Metals", "transit_aspect": "Mercury Trine Saturn", "trend": "Neutral", "strategy": "Hold positions in diversified metal companies"},
+    {"date": "2025-08-05", "sector": "Oil & Gas", "transit_aspect": "Mars Trine Uranus", "trend": "Bullish", "strategy": "Long energy companies with renewable focus"},
+    {"date": "2025-08-10", "sector": "PSU Banks", "transit_aspect": "Jupiter Sextile Saturn", "trend": "Bullish", "strategy": "Long banks with improved NPA ratios"},
+    {"date": "2025-08-15", "sector": "Telecom", "transit_aspect": "Venus Trine Neptune", "trend": "Bullish", "strategy": "Long telecom companies with 5G expansion"},
+    {"date": "2025-08-20", "sector": "IT", "transit_aspect": "Sun Trine Uranus", "trend": "Bullish", "strategy": "Long tech companies with AI innovations"},
+    {"date": "2025-08-25", "sector": "Agriculture", "transit_aspect": "Mars Trine Jupiter", "trend": "Bullish", "strategy": "Long agri-companies with monsoon benefits"},
+    {"date": "2025-09-05", "sector": "Tea", "transit_aspect": "Mercury Trine Venus", "trend": "Bullish", "strategy": "Long tea exporters with festive demand"},
+    {"date": "2025-09-10", "sector": "Sugar", "transit_aspect": "Jupiter Trine Moon", "trend": "Bullish", "strategy": "Long sugar companies with ethanol capacity"},
+    {"date": "2025-09-15", "sector": "Hotel", "transit_aspect": "Venus Trine Jupiter", "trend": "Bullish", "strategy": "Long hotel chains with tourist season"},
+    {"date": "2025-09-20", "sector": "Paper", "transit_aspect": "Saturn Trine Uranus", "trend": "Neutral", "strategy": "Hold paper packaging companies"},
+    {"date": "2025-10-05", "sector": "Gold", "transit_aspect": "Sun Conjunct Jupiter", "trend": "Bullish", "strategy": "Long gold as safe haven asset"},
+    {"date": "2025-10-10", "sector": "Silver", "transit_aspect": "Venus Trine Mars", "trend": "Bullish", "strategy": "Long silver for industrial demand"},
+    {"date": "2025-10-15", "sector": "Crude Oil", "transit_aspect": "Mars Square Saturn", "trend": "Bearish", "strategy": "Short oil due to geopolitical tensions"},
+    {"date": "2025-10-20", "sector": "Dow Jones", "transit_aspect": "Jupiter Trine Neptune", "trend": "Bullish", "strategy": "Long blue-chip stocks"},
+    {"date": "2025-10-25", "sector": "Nifty", "transit_aspect": "Mercury Trine Jupiter", "trend": "Bullish", "strategy": "Large-cap index funds"},
+    {"date": "2025-11-05", "sector": "Bank Nifty", "transit_aspect": "Venus Trine Saturn", "trend": "Neutral", "strategy": "Hold banking sector with caution"},
+    {"date": "2025-11-10", "sector": "BTC", "transit_aspect": "Uranus Trine Jupiter", "trend": "Bullish", "strategy": "Long crypto for institutional adoption"},
+    {"date": "2025-11-15", "sector": "Pharma", "transit_aspect": "Neptune Trine Sun", "trend": "Bullish", "strategy": "Long specialty pharma companies"},
+    {"date": "2025-11-20", "sector": "Auto", "transit_aspect": "Saturn Trine Uranus", "trend": "Volatile", "strategy": "Trade auto stocks with tight stops"},
+    {"date": "2025-12-05", "sector": "FMCG", "transit_aspect": "Jupiter Conjunct Venus", "trend": "Bullish", "strategy": "Long FMCG for holiday season demand"},
+    {"date": "2025-12-10", "sector": "Metals", "transit_aspect": "Mars Trine Jupiter", "trend": "Bullish", "strategy": "Long metals for infrastructure spending"},
+    {"date": "2025-12-15", "sector": "Oil & Gas", "transit_aspect": "Venus Trine Neptune", "trend": "Neutral", "strategy": "Hold energy stocks with balanced exposure"},
+    {"date": "2025-12-20", "sector": "PSU Banks", "transit_aspect": "Mercury Trine Saturn", "trend": "Neutral", "strategy": "Wait for policy clarity before entering"},
+    {"date": "2025-12-25", "sector": "Telecom", "transit_aspect": "Sun Trine Uranus", "trend": "Bullish", "strategy": "Long telecom for digital growth"},
+    {"date": "2025-12-30", "sector": "IT", "transit_aspect": "Jupiter Trine Uranus", "trend": "Bullish", "strategy": "Long IT for year-end tech rally"},
 ]
 
 # Symbol to sector mapping
