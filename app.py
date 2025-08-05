@@ -5,8 +5,7 @@ from datetime import datetime
 st.set_page_config(
     page_title="Astrological Sector Report Generator 2025",
     page_icon="🔮",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
 # Complete astrological data for 2025 (January to December)
