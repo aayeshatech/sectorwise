@@ -1,5 +1,9 @@
-import streamlit as st
+import http.server
+import socketserver
+import os
+import json
 from datetime import datetime
+from urllib.parse import parse_qs, urlparse
 
 # Astrological data for 2025
 astro_data = [
@@ -116,112 +120,323 @@ def get_symbol_report(symbol):
                 return get_sector_report(sec)
         return None
 
-# Streamlit app
-st.set_page_config(
-    page_title="Astrological Sector Report Generator",
-    page_icon="🔮",
-    layout="wide"
-)
-
-st.title("🔮 Astrological Sector Report Generator")
-st.markdown("Generate astrological reports by sector, month, or stock symbol")
-
-# Get unique sectors and months
-sectors = sorted(set(event['sector'] for event in astro_data))
-months = [datetime(2025, i, 1).strftime('%B') for i in range(1, 13)]
-symbols = sorted(symbol_to_sector.keys())
-
-# Create tabs for different report types
-tab1, tab2, tab3 = st.tabs(["By Sector", "By Month", "By Symbol"])
-
-with tab1:
-    st.header("Sector Report")
-    selected_sector = st.selectbox("Select a sector", sectors)
+def generate_html():
+    """Generate the HTML for the web app"""
+    sectors = sorted(set(event['sector'] for event in astro_data))
+    months = [datetime(2025, i, 1).strftime('%B') for i in range(1, 13)]
+    symbols = sorted(symbol_to_sector.keys())
     
-    if st.button("Generate Sector Report"):
-        report_data = get_sector_report(selected_sector)
-        if report_data:
-            st.subheader(f"Astrological Report for {selected_sector} Sector")
-            st.markdown(f"**Total events:** {len(report_data)}")
-            
-            # Format date for display
-            for event in report_data:
-                event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
-            
-            # Display as dataframe
-            st.dataframe(
-                report_data,
-                column_config={
-                    "date": "Date",
-                    "sector": "Sector",
-                    "transit_aspect": "Transit/Aspect",
-                    "trend": "Trend",
-                    "strategy": "Strategy"
-                },
-                use_container_width=True
-            )
-        else:
-            st.warning(f"No data found for {selected_sector} sector")
-
-with tab2:
-    st.header("Monthly Report")
-    selected_month = st.selectbox("Select a month", months)
+    html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Astrological Sector Report Generator</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }}
+        h1 {{
+            color: #333;
+            text-align: center;
+        }}
+        .container {{
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }}
+        .form-group {{
+            margin-bottom: 15px;
+        }}
+        label {{
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }}
+        select, input[type="text"] {{
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }}
+        button {{
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }}
+        button:hover {{
+            background-color: #45a049;
+        }}
+        .tab-container {{
+            margin-top: 20px;
+        }}
+        .tab {{
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }}
+        .tab button {{
+            background-color: inherit;
+            float: left;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #333;
+        }}
+        .tab button:hover {{
+            background-color: #ddd;
+        }}
+        .tab button.active {{
+            background-color: #ccc;
+        }}
+        .tabcontent {{
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }}
+        th, td {{
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }}
+        th {{
+            background-color: #4CAF50;
+            color: white;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f2f2f2;
+        }}
+        tr:hover {{
+            background-color: #e6f7ff;
+        }}
+        .summary {{
+            margin: 20px 0;
+            font-size: 18px;
+            color: #555;
+        }}
+        .no-results {{
+            color: #d9534f;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }}
+    </style>
+</head>
+<body>
+    <h1>🔮 Astrological Sector Report Generator</h1>
     
-    if st.button("Generate Monthly Report"):
-        report_data = get_month_report(selected_month)
-        if report_data:
-            st.subheader(f"Astrological Report for {selected_month} 2025")
-            st.markdown(f"**Total events:** {len(report_data)}")
+    <div class="container">
+        <div class="tab-container">
+            <div class="tab">
+                <button class="tablinks active" onclick="openTab(event, 'sector-tab')">By Sector</button>
+                <button class="tablinks" onclick="openTab(event, 'month-tab')">By Month</button>
+                <button class="tablinks" onclick="openTab(event, 'symbol-tab')">By Symbol</button>
+            </div>
             
-            # Format date for display
-            for event in report_data:
-                event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+            <div id="sector-tab" class="tabcontent" style="display: block;">
+                <div class="form-group">
+                    <label for="sector">Select Sector:</label>
+                    <select id="sector" name="sector">
+                        <option value="">-- Select Sector --</option>
+                        {''.join([f'<option value="{sector}">{sector}</option>' for sector in sectors])}
+                    </select>
+                </div>
+                <button onclick="generateSectorReport()">Generate Report</button>
+            </div>
             
-            # Display as dataframe
-            st.dataframe(
-                report_data,
-                column_config={
-                    "date": "Date",
-                    "sector": "Sector",
-                    "transit_aspect": "Transit/Aspect",
-                    "trend": "Trend",
-                    "strategy": "Strategy"
-                },
-                use_container_width=True
-            )
-        else:
-            st.warning(f"No data found for {selected_month}")
-
-with tab3:
-    st.header("Symbol Report")
-    selected_symbol = st.selectbox("Select a symbol", symbols)
+            <div id="month-tab" class="tabcontent">
+                <div class="form-group">
+                    <label for="month">Select Month:</label>
+                    <select id="month" name="month">
+                        <option value="">-- Select Month --</option>
+                        {''.join([f'<option value="{month}">{month}</option>' for month in months])}
+                    </select>
+                </div>
+                <button onclick="generateMonthReport()">Generate Report</button>
+            </div>
+            
+            <div id="symbol-tab" class="tabcontent">
+                <div class="form-group">
+                    <label for="symbol">Enter Stock Symbol:</label>
+                    <select id="symbol" name="symbol">
+                        <option value="">-- Select Symbol --</option>
+                        {''.join([f'<option value="{symbol}">{symbol}</option>' for symbol in symbols])}
+                    </select>
+                </div>
+                <button onclick="generateSymbolReport()">Generate Report</button>
+            </div>
+        </div>
+    </div>
     
-    if st.button("Generate Symbol Report"):
-        report_data = get_symbol_report(selected_symbol)
-        if report_data:
-            sector_name = symbol_to_sector.get(selected_symbol.upper(), "Unknown")
-            st.subheader(f"Astrological Report for {selected_symbol} ({sector_name} Sector)")
-            st.markdown(f"**Total events:** {len(report_data)}")
+    <div id="report-container"></div>
+    
+    <script>
+        // Astrological data
+        const astroData = {json.dumps(astro_data)};
+        const symbolToSector = {json.dumps(symbol_to_sector)};
+        
+        function openTab(evt, tabName) {{
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {{
+                tabcontent[i].style.display = "none";
+            }}
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {{
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }}
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }}
+        
+        function formatDate(dateStr) {{
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {{ year: 'numeric', month: 'short', day: 'numeric' }});
+        }}
+        
+        function generateSectorReport() {{
+            const sector = document.getElementById('sector').value;
+            if (!sector) {{
+                alert('Please select a sector');
+                return;
+            }}
             
-            # Format date for display
-            for event in report_data:
-                event['date'] = datetime.strptime(event['date'], "%Y-%m-%d").strftime('%b %d, %Y')
+            const reportData = astroData.filter(event => event.sector === sector);
+            reportData.sort((a, b) => new Date(a.date) - new Date(b.date));
             
-            # Display as dataframe
-            st.dataframe(
-                report_data,
-                column_config={
-                    "date": "Date",
-                    "sector": "Sector",
-                    "transit_aspect": "Transit/Aspect",
-                    "trend": "Trend",
-                    "strategy": "Strategy"
-                },
-                use_container_width=True
-            )
-        else:
-            st.warning(f"No data found for symbol {selected_symbol}")
+            displayReport(`Astrological Report for ${{sector}} Sector`, reportData);
+        }}
+        
+        function generateMonthReport() {{
+            const month = document.getElementById('month').value;
+            if (!month) {{
+                alert('Please select a month');
+                return;
+            }}
+            
+            const monthNum = new Date(`${{month}} 1, 2025`).getMonth() + 1;
+            const reportData = astroData.filter(event => {{
+                const eventDate = new Date(event.date);
+                return eventDate.getMonth() + 1 === monthNum;
+            }});
+            reportData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            displayReport(`Astrological Report for ${{month}} 2025`, reportData);
+        }}
+        
+        function generateSymbolReport() {{
+            const symbol = document.getElementById('symbol').value.toUpperCase();
+            if (!symbol) {{
+                alert('Please select a symbol');
+                return;
+            }}
+            
+            let sector = symbolToSector[symbol];
+            if (!sector) {{
+                // Try to find sector by keyword matching
+                for (const [sym, sec] of Object.entries(symbolToSector)) {{
+                    if (symbol.includes(sym) || sym.includes(symbol)) {{
+                        sector = sec;
+                        break;
+                    }}
+                }}
+            }}
+            
+            if (!sector) {{
+                displayReport(`No data found for symbol: ${{symbol}}`, []);
+                return;
+            }}
+            
+            const reportData = astroData.filter(event => event.sector === sector);
+            reportData.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            displayReport(`Astrological Report for ${{symbol}} (${{sector}} Sector)`, reportData);
+        }}
+        
+        function displayReport(title, data) {{
+            const container = document.getElementById('report-container');
+            
+            if (data.length === 0) {{
+                container.innerHTML = `
+                    <div class="container">
+                        <h2>${{title}}</h2>
+                        <div class="no-results">No astrological data found for your selection.</div>
+                    </div>
+                `;
+                return;
+            }}
+            
+            let tableRows = '';
+            data.forEach(event => {{
+                tableRows += `
+                    <tr>
+                        <td>${{formatDate(event.date)}}</td>
+                        <td>${{event.sector}}</td>
+                        <td>${{event.transit_aspect}}</td>
+                        <td>${{event.trend}}</td>
+                        <td>${{event.strategy}}</td>
+                    </tr>
+                `;
+            }});
+            
+            container.innerHTML = `
+                <div class="container">
+                    <h2>${{title}}</h2>
+                    <div class="summary">Total events: ${{data.length}}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Sector</th>
+                                <th>Transit/Aspect</th>
+                                <th>Trend</th>
+                                <th>Strategy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${{tableRows}}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }}
+    </script>
+</body>
+</html>
+    """
+    return html
 
-# Add footer
-st.markdown("---")
-st.markdown("© 2025 Astrological Sector Report Generator | Data is for informational purposes only")
+class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+            self.wfile.write(generate_html().encode('utf-8'))
+        else:
+            super().do_GET()
+
+if __name__ == "__main__":
+    PORT = 5000
+    with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
+        print(f"Serving at port {PORT}")
+        httpd.serve_forever()
